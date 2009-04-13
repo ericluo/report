@@ -1,10 +1,10 @@
 require 'spreadsheet'
 
-class ReportAggreator
+class Aggreator
   attr_accessor :template, :source_pattern, :output, :range
 
   def initialize(template, source_path, output, range)
-    @template = ::Spreadsheet.open(template)
+    @template = Spreadsheet.open(template)
     @output = output
     source_pattern = File.expand_path(File.join(source_path, "*.xls"))
     @sources = Dir.glob(source_pattern)
@@ -21,7 +21,7 @@ class ReportAggreator
 
   def aggreate
     @sources.each_with_index do |f, i|
-      sheet = ::Spreadsheet.open(f).worksheet(0)
+      sheet = Spreadsheet.open(f).worksheet(0)
       yield f, i
       @rows_range.each do |r|
         @cols_range.each do |c|
