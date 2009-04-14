@@ -39,17 +39,9 @@ Shoes.app :title => "报表汇总" do
         @p = progress :width => 1.0 unless @p
         @info = para "开始报表汇总" unless @info
 
-        aggreator = Aggreator.new(@template.text, @reports_path.text, 
+        @aggreator = Aggreator.new(@template.text, @reports_path.text, 
                                   @collect.text, @range.text)
-        aggreator.aggreate do |source, index|
-          debug("processing #{source}")
-          @p.fraction = (index + 1) / aggreator.size
-          if index == aggreator.size - 1
-            @info.replace "汇总完成！"
-          else
-            @info.replace "汇总#{source}..."
-          end
-        end
+        @aggreator.aggreate
       end
       button "清除" do
         [@template, @range, @reports_path, @collect].each do |box|
@@ -57,6 +49,14 @@ Shoes.app :title => "报表汇总" do
         end
       end
     end
+
+    animate(24) do |frame|
+      @p.fraction = (@aggreator.processing_index + 1) / aggreator.size
+      if index == @aggreator.size - 1
+        @info.replace "汇总完成！"
+      else
+        @info.replace "汇总#{source}..."
+      end
   end
 end
 
