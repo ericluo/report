@@ -2,7 +2,7 @@ require 'spreadsheet'
 
 class Aggreator
   attr_accessor :template, :source_pattern, :output, :range
-  attr_reader :processing_index
+  attr_reader :processing_index, :started
 
   def initialize(template, source_path, output, range)
     @template = Spreadsheet.open(template)
@@ -22,9 +22,9 @@ class Aggreator
 
   def aggreate
     @sources.each_with_index do |f, i|
+      @processing_index = i
       sheet = Spreadsheet.open(f).worksheet(0)
       yield f, i if block_given?
-      @processing_index = i
       @rows_range.each do |r|
         @cols_range.each do |c|
           # debug("r=#{r}, c=#{c}, value=#{sheet.row(r)[c]}")

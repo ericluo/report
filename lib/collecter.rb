@@ -6,6 +6,7 @@ require 'spreadsheet'
 require 'aggreator'
 
 Shoes.app :title => "报表汇总" do
+  title "湖北银监局报表汇总生成器", :align => "center"
   stack :margin => 10 do
     para "请输入报表模板文件路径及文件名"
     flow do
@@ -34,29 +35,44 @@ Shoes.app :title => "报表汇总" do
       end
     end
 
-    flow :margin_left => 400 do
-      button "汇总" do
-        @p = progress :width => 1.0 unless @p
-        @info = para "开始报表汇总" unless @info
+    flow :margin_left => 320, :margin_top => 20 do
+      clear_button = button "清除" 
+      aggreator_button = button "汇总"
+      button "退出" do exit; end
 
-        @aggreator = Aggreator.new(@template.text, @reports_path.text, 
-                                  @collect.text, @range.text)
-        @aggreator.aggreate
-      end
-      button "清除" do
+      clear_button.click {|btn, left, top|
         [@template, @range, @reports_path, @collect].each do |box|
           box.text = ""
         end
-      end
-    end
+        @aggreator = nil
+        @status_bar.clear
+        aggreator_button.state = nil
+      }
 
-    animate(24) do |frame|
-      @p.fraction = (@aggreator.processing_index + 1) / aggreator.size
-      if index == @aggreator.size - 1
-        @info.replace "汇总完成！"
-      else
-        @info.replace "汇总#{source}..."
-      end
+      aggreator_button.click {|btn, left, top|
+        aggreator_button.state = "disabled"
+        @status_bar = flow do
+          @p = progress :width => 1.0
+          @info = para ""
+          updater = animate(24) do |frame|
+            if @started
+              current_index = @aggreator.processing_index
+              @p.fraction = (current_index + 1) / @aggreator.size
+              if current_index == @aggreator.size - 1
+                @info.replace "汇总完成！"
+                updater.stop
+              else
+                @info.replace "汇总#{source}..."
+              end
+            end
+          end
+        end
+        @aggreator = Aggreator.new(@template.text, @reports_path.text, 
+                                   @collect.text, @range.text)
+        @started = true
+        @aggreator.aggreate
+      }
+    end
   end
 end
 
