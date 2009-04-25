@@ -6,6 +6,11 @@ require 'spreadsheet'
 require 'aggreator'
 
 Shoes.app :title => "报表汇总" do
+
+  [Shoes::Para, Shoes::Button, Shoes::Title].each do |element|
+    style element, :font => "宋体" # "文泉驿正黑"
+  end
+
   title "湖北银监局报表汇总生成器", :align => "center"
   stack :margin => 10 do
     para "请输入报表模板文件路径及文件名"
